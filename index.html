@@ -6,6 +6,7 @@
   <title>Age Calculator — Telegram WebApp</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
   <style>
     :root{
       --primary:#3b82f6; --primary2:#06b6d4;
@@ -16,7 +17,7 @@
       --shadow:0 10px 30px rgba(16,24,40,.08),0 2px 8px rgba(16,24,40,.05);
       --radius:16px;
     }
-    html{ color-scheme: light; }
+    html{ color-scheme: light; } /* force light widgets (date picker) */
 
     *{box-sizing:border-box}
     body{
@@ -61,7 +62,7 @@
       background:
         radial-gradient(circle at 30% 70%, color-mix(in oklab, var(--halo1) 70%, transparent) 0 22%, transparent 46%),
         radial-gradient(circle at 0% 100%, color-mix(in oklab, var(--halo2) 35%, transparent) 0 62%, transparent 74%);
-      mix-blend-mode: screen; pointer-events:none;
+      mix-blend-mode: screen;
     }
     .orb i{ font-size:36px; filter: drop-shadow(0 6px 12px rgba(0,0,0,.18)); }
     .orb .ring{
@@ -87,6 +88,7 @@
 
     .label{ font-weight:700; display:flex; align-items:center; gap:8px; margin-bottom:10px;}
     .input-row{ display:flex; gap:10px; align-items:center; }
+
     input[type="date"]{
       width:100%; appearance:none; -webkit-appearance:none;
       padding:14px 14px; border-radius:12px; border:1px solid #e5e7eb; outline:0; font-size:15px; background:#fff; color:var(--text);
@@ -98,23 +100,28 @@
       display:inline-flex; align-items:center; justify-content:center; gap:8px;
       padding:12px 14px; border-radius:12px; border:0; cursor:pointer; font-weight:700; font-size:15px; position:relative; overflow:hidden;
     }
+    /* Calculate: default icon = calendar (tick only after success) */
     .btn-primary{
       flex:1; color:#fff;
       background: linear-gradient(90deg, var(--primary), var(--primary2), var(--primary));
       background-size: 200% 100%; animation: bgShift 6s linear infinite;
-      box-shadow: 0 10px 22px rgba(59,130,246,.28); transition: transform .12s ease; isolation:isolate;
+      box-shadow: 0 10px 22px rgba(59,130,246,.28);
+      transition: transform .12s ease;
+      isolation:isolate;
     }
     .btn-primary:hover{ transform: translateY(-1px); }
     .btn-primary:active{ transform: translateY(1px) scale(.99); }
     .btn-primary::before{ content:""; position:absolute; top:0; left:-150%; width:120%; height:100%; background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.28) 50%, transparent 100%); transform: skewX(-20deg); }
     .btn-primary.shine::before{ animation: btnShine .8s ease-out forwards; }
     .btn-primary.pulse::after{ content:""; position:absolute; inset:-4px; border-radius:inherit; border:2px solid rgba(59,130,246,.45); opacity:0; animation: btnPulse .6s ease-out; }
+
     @keyframes bgShift{ 0%{ background-position:0% 0 } 100%{ background-position:200% 0 } }
     @keyframes btnShine{ to{ left:150%; } }
     @keyframes btnPulse{ 0%{ transform:scale(1); opacity:.7 } 100%{ transform:scale(1.08); opacity:0 } }
 
     .btn-ghost{ width:46px; height:46px; background:#fff; border:1px solid #e5e7eb; }
 
+    /* Send to Telegram button */
     .btn-send{
       --g: linear-gradient(90deg, var(--primary), var(--primary2));
       display:inline-flex; align-items:center; gap:10px;
@@ -136,6 +143,7 @@
 
     .muted-box{ text-align:center; color:var(--muted); padding:22px 12px; }
 
+    /* KPI + animated border */
     .age-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:6px; }
     .kpi{
       position:relative; overflow:hidden;
@@ -190,13 +198,10 @@
 <body>
   <div class="wrap">
     <div class="shell">
-      <!-- নিচের ইন‑অ্যাপ appbarটি সরানো হয়েছে -->
-
       <div class="blob"></div><div class="blob b2"></div>
 
       <div class="hero">
         <div class="orb"><div class="ring"></div><i class="fa-regular fa-calendar"></i></div>
-        <!-- চাইলে এ h1 রাখুন; একেবারে সরাতে চাইলে এই লাইন ডিলিট করুন -->
         <h1>Age Calculator</h1>
         <p class="sub">Calculate your exact age, total days lived, and next birthday</p>
       </div>
@@ -207,11 +212,13 @@
           <input id="dob" type="date" placeholder="dd/mm/yyyy" />
         </div>
         <div class="input-row" style="margin-top:12px">
-          <button id="calcBtn" class="btn btn-primary"><i class="fa-regular fa-square-check"></i> Calculate</button>
+          <!-- default icon changed to calendar -->
+          <button id="calcBtn" class="btn btn-primary"><i class="fa-regular fa-calendar"></i> Calculate</button>
           <button id="resetBtn" class="btn btn-ghost" title="Reset"><i class="fa-solid fa-rotate-right"></i></button>
         </div>
       </div>
 
+      <!-- Placeholder -->
       <div id="results">
         <div class="card show" id="emptyCard">
           <div class="muted-box">
@@ -246,17 +253,14 @@
     const dobInput = $('#dob'), calcBtn = $('#calcBtn'), resetBtn = $('#resetBtn');
     const results = $('#results'), sendBtn = $('#sendBtn'), credit = $('#credit'), nobinLink = $('#nobinLink');
 
-    // Telegram WebApp: header কালো, টেক্সট সাদা (সম্ভব হলে)
+    // Telegram SDK
     const tg = window.Telegram && Telegram.WebApp ? Telegram.WebApp : null;
     if (tg){
       try{
         tg.ready(); tg.expand();
-        tg.setBackgroundColor?.('#FFFFFF'); // webview bg
-        tg.setHeaderColor?.('#000000');     // Android/Desktop(সম্ভব হলে) = black
-        // Desktop এ হেক্স সাপোর্ট না থাকলে এইটা চেষ্টা করতে পারেন:
-        // tg.setHeaderColor?.('bg_color'); // থিম-ডিপেন্ডেন্ট
-        tg.MainButton.color = '#3b82f6';
-        tg.MainButton.textColor = '#ffffff';
+        tg.setBackgroundColor?.('#FFFFFF');
+        tg.setHeaderColor?.('#000000'); // try black header (text becomes white on mobile)
+        tg.MainButton.hide(); // start hidden
       }catch(e){}
     }
 
@@ -280,11 +284,17 @@
       btn.appendChild(r); setTimeout(()=>r.remove(),650);
     });
 
+    // Calc button icon states
+    const calcDefaultHTML = `<i class="fa-regular fa-calendar"></i> Calculate`;
+    const calcSpinnerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Calculating...`;
+    const calcDoneHTML = `<i class="fa-solid fa-check"></i> Done`;
+
+    let lastPayload = null; // will hold data to send
+    let mainBtnHandler = null;
+
     calcBtn.addEventListener('click', onCalculate);
     resetBtn.addEventListener('click', resetAll);
     dobInput.addEventListener('keydown', e=>{ if(e.key==='Enter') onCalculate(); });
-
-    let mainBtnHandler=null;
 
     async function onCalculate(){
       const dob=parseDOB(dobInput.value);
@@ -293,10 +303,10 @@
       if(dob>now){ toast('Birth date cannot be in the future.'); pulseCalc(); return; }
 
       pulseCalc(); shineCalc();
-      const prevHTML=calcBtn.innerHTML; calcBtn.disabled=true;
-      calcBtn.innerHTML=`<i class="fa-solid fa-spinner fa-spin"></i> Calculating...`;
-      if (tg&&tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-      await new Promise(r=>setTimeout(r,360));
+      calcBtn.disabled = true;
+      calcBtn.innerHTML = calcSpinnerHTML;
+
+      await new Promise(r=>setTimeout(r, 360));
 
       const dif=diffYMD(dob,now);
       const totalDays=diffDays(startOfDay(dob), startOfDay(now));
@@ -307,6 +317,17 @@
       const beats=Math.floor(minutes*80);
       const {daysInYear,daysSinceLast,percentToNext}=birthdayProgress(dob,now);
 
+      // payload to send later
+      lastPayload = {
+        dob: fmtDate(dob),
+        age: dif,
+        totalDays,
+        daysToNext,
+        hours, minutes,
+        heartbeats: beats
+      };
+
+      // Build results
       results.innerHTML = `
         <div class="card">
           <div class="row">
@@ -372,39 +393,44 @@
         </div>
       `;
 
+      // reveal + counters + ring
       revealCards();
-      document.querySelectorAll('[data-anim]').forEach(el=> animateNumber(el,+el.getAttribute('data-anim')));
+      document.querySelectorAll('[data-anim]').forEach(el=> animateNumber(el, +el.getAttribute('data-anim')));
       animateRing($('#ring'), $('#ringTxt'), percentToNext, $('#ringDot'));
 
+      // enable sending (only after we have lastPayload)
       if (tg){
         sendBtn.style.display='inline-flex';
-        const payload={ dob:fmtDate(dob), age:dif, totalDays, daysToNext, hours, minutes, heartbeats:beats };
-        sendBtn.onclick = () => sendToTelegram(payload);
+        sendBtn.onclick = () => sendToTelegram(lastPayload);
 
         tg.MainButton.setText('Send to Telegram');
         tg.MainButton.color = '#3b82f6';
         tg.MainButton.textColor = '#ffffff';
         tg.MainButton.show();
+
         if (mainBtnHandler) tg.offEvent?.('mainButtonClicked', mainBtnHandler);
-        mainBtnHandler = () => sendToTelegram(payload);
+        mainBtnHandler = () => sendToTelegram(lastPayload);
         tg.onEvent?.('mainButtonClicked', mainBtnHandler);
-      } else {
-        sendBtn.style.display='none';
       }
 
-      try{ confetti({ particleCount:110, spread:70, origin:{y:0.15} }); }catch(e){}
-      calcBtn.innerHTML=prevHTML; calcBtn.disabled=false;
+      // show success tick briefly, then restore default icon
+      calcBtn.innerHTML = calcDoneHTML;
+      setTimeout(()=>{ calcBtn.innerHTML = calcDefaultHTML; calcBtn.disabled = false; }, 900);
+
+      try{ confetti({ particleCount: 110, spread: 70, origin: { y: 0.15 } }); }catch(e){}
     }
 
     function sendToTelegram(payload){
+      if (!tg){ toast('Open this app from your bot to send.'); return; }
+      if (!payload){ toast('Calculate first, then send.'); return; }
+
       animateSendBtn();
       try{
-        if(!tg) throw 0;
         tg.sendData(JSON.stringify({type:'age_result', payload}));
-        tg.showPopup?.({title:'Sent ✅', message:'Result sent to the bot.', buttons:[{type:'close'}]});
+        // No popup unless really needed; just close so user sees message in chat
         setTimeout(()=> tg.close?.(), 700);
       }catch(e){
-        tg?.showAlert?.('Could not send. Please open this app from your bot button.');
+        tg.showAlert?.('Could not send. Please open this app from your bot button.');
       }
     }
 
@@ -418,6 +444,7 @@
 
     function resetAll(){
       dobInput.value='';
+      lastPayload = null;
       results.innerHTML=`
         <div class="card show" id="emptyCard">
           <div class="muted-box">
@@ -425,8 +452,13 @@
             <div style="margin-top:8px">Pick a birth date and enjoy results.</div>
           </div>
         </div>`;
-      if (tg){ sendBtn.style.display='none'; tg.MainButton?.hide(); }
+      if (tg){
+        sendBtn.style.display='none';
+        tg.MainButton?.hide();
+      }
       credit.classList.remove('show'); credit.style.display='none';
+      // restore calculate button to default icon
+      calcBtn.innerHTML = calcDefaultHTML; calcBtn.disabled = false;
     }
 
     // Utils
@@ -483,12 +515,11 @@
       animateNumber(txtEl, percent, 1000);
       setTimeout(()=>{ txtEl.textContent=txtEl.textContent.replace(/,/g,'') + '%'; },1100);
     }
-    function revealCards(){
-      [...document.querySelectorAll('#results .card')].forEach((c,i)=> setTimeout(()=>c.classList.add('show'), i*90+30));
-      credit.style.display='block'; requestAnimationFrame(()=> credit.classList.add('show'));
-    }
+    function revealCards(){ [...document.querySelectorAll('#results .card')].forEach((c,i)=> setTimeout(()=>c.classList.add('show'), i*90+30)); credit.style.display='block'; requestAnimationFrame(()=> credit.classList.add('show')); }
+
     function pulseCalc(){ calcBtn.classList.add('pulse'); setTimeout(()=>calcBtn.classList.remove('pulse'),650); }
     function shineCalc(){ calcBtn.classList.add('shine'); setTimeout(()=>calcBtn.classList.remove('shine'),820); }
+
     function toast(msg){ if(tg){ try{ tg.showAlert(msg); return; }catch(e){} } alert(msg); }
   </script>
 </body>

@@ -23,11 +23,8 @@
       --shadow:0 10px 30px rgba(16,24,40,.08),0 2px 8px rgba(16,24,40,.05);
       --radius:16px;
     }
-    body.tg-dark{
-      --bg1:#0e1117; --bg2:#0c0f14; --surface:#121826;
-      --text:#e5e7eb; --muted:#9ca3af; --ring:rgba(59,130,246,.32);
-      --shadow:0 12px 30px rgba(0,0,0,.35);
-    }
+    /* Force light widgets (date picker etc.) */
+    html{ color-scheme: light; }
 
     *{box-sizing:border-box}
     body{
@@ -315,13 +312,16 @@
     const sendBtn = $('#sendBtn');
     const credit = $('#credit');
     const nobinLink = $('#nobinLink');
-    const tg = window.Telegram && Telegram.WebApp ? Telegram.WebApp : null;
 
-    // Telegram theme
+    // Telegram WebApp: force light theme
+    const tg = window.Telegram && Telegram.WebApp ? Telegram.WebApp : null;
     if (tg){
-      try{ tg.ready(); tg.expand(); if (tg.colorScheme === 'dark') document.body.classList.add('tg-dark'); }catch(e){}
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
-      document.body.classList.add('tg-dark');
+      try{
+        tg.ready(); tg.expand();
+        document.body.classList.remove('tg-dark');
+        tg.setBackgroundColor?.('#ffffff'); // white WebApp bg
+        tg.setHeaderColor?.('bg_color');
+      }catch(e){}
     }
 
     // Credit link → Telegram profile
@@ -460,7 +460,7 @@
         sendBtn.style.display = 'none';
       }
 
-      // Show credit chip after results (was hidden initially)
+      // Show credit chip after results
       credit.style.display = 'block';
       requestAnimationFrame(()=> credit.classList.add('show'));
 

@@ -11,8 +11,8 @@
     :root{
       --primary:#3b82f6;     /* blue */
       --primary2:#06b6d4;    /* cyan */
-      --halo1:#93c5fd;       /* blue glow */
-      --halo2:#22d3ee;       /* teal glow */
+      --halo1:#93c5fd;
+      --halo2:#22d3ee;
 
       --bg1:#eef6ff;
       --bg2:#f7fbff;
@@ -23,8 +23,7 @@
       --shadow:0 10px 30px rgba(16,24,40,.08),0 2px 8px rgba(16,24,40,.05);
       --radius:16px;
     }
-    /* Force light widgets (date picker etc.) */
-    html{ color-scheme: light; }
+    html{ color-scheme: light; } /* force light widgets */
 
     *{box-sizing:border-box}
     body{
@@ -45,8 +44,6 @@
       backdrop-filter: blur(6px);
       position:relative; overflow:hidden;
     }
-
-    /* Sticky app title (always visible) */
     .appbar{
       position:sticky; top:6px; z-index:5;
       display:flex; align-items:center; justify-content:center; gap:8px;
@@ -118,35 +115,24 @@
     }
     input[type="date"]:focus{ border-color:var(--primary); box-shadow:0 0 0 6px var(--ring); }
 
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center; gap:8px;
-      padding:12px 14px; border-radius:12px; border:0; cursor:pointer; font-weight:700; font-size:15px; position:relative; overflow:hidden;
-    }
+    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 14px; border-radius:12px; border:0; cursor:pointer; font-weight:700; font-size:15px; position:relative; overflow:hidden; }
     .btn-primary{
-      flex:1; color:#fff;
-      background: linear-gradient(90deg, var(--primary), var(--primary2), var(--primary));
+      flex:1; color:#fff; background: linear-gradient(90deg, var(--primary), var(--primary2), var(--primary));
       background-size: 200% 100%; animation: bgShift 6s linear infinite;
-      box-shadow: 0 10px 22px rgba(59,130,246,.28);
-      transition: transform .12s ease;
-      isolation:isolate;
+      box-shadow: 0 10px 22px rgba(59,130,246,.28); transition: transform .12s ease; isolation:isolate;
     }
     .btn-primary:hover{ transform: translateY(-1px); }
     .btn-primary:active{ transform: translateY(1px) scale(.99); }
-    .btn-primary::before{
-      content:""; position:absolute; top:0; left:-150%; width:120%; height:100%;
-      background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.28) 50%, transparent 100%);
-      transform: skewX(-20deg);
-    }
+    .btn-primary::before{ content:""; position:absolute; top:0; left:-150%; width:120%; height:100%; background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.28) 50%, transparent 100%); transform: skewX(-20deg); }
     .btn-primary.shine::before{ animation: btnShine .8s ease-out forwards; }
     .btn-primary.pulse::after{ content:""; position:absolute; inset:-4px; border-radius:inherit; border:2px solid rgba(59,130,246,.45); opacity:0; animation: btnPulse .6s ease-out; }
-
     @keyframes bgShift{ 0%{ background-position:0% 0 } 100%{ background-position:200% 0 } }
     @keyframes btnShine{ to{ left:150%; } }
     @keyframes btnPulse{ 0%{ transform:scale(1); opacity:.7 } 100%{ transform:scale(1.08); opacity:0 } }
 
     .btn-ghost{ width:46px; height:46px; background:#fff; border:1px solid #e5e7eb; }
 
-    /* Send to Telegram button with plane take-off */
+    /* Send to Telegram button */
     .btn-send{
       --g: linear-gradient(90deg, var(--primary), var(--primary2));
       display:inline-flex; align-items:center; gap:10px;
@@ -156,17 +142,10 @@
       color:var(--primary); font-weight:800; transition:.2s; position:relative; overflow:hidden;
     }
     .btn-send:hover{ transform: translateY(-1px); box-shadow:0 10px 22px rgba(59,130,246,.12); }
-    .btn-send .plane{
-      width:22px; height:22px; border-radius:50%; background: var(--g); color:#fff; display:grid; place-items:center;
-      box-shadow:0 6px 14px rgba(59,130,246,.25); position:relative; transition: transform .25s ease;
-    }
+    .btn-send .plane{ width:22px; height:22px; border-radius:50%; background: var(--g); color:#fff; display:grid; place-items:center; box-shadow:0 6px 14px rgba(59,130,246,.25); position:relative; transition: transform .25s ease; }
     .btn-send:hover .plane{ transform: translateX(2px); }
     .btn-send.fly .plane{ animation: planeFly .8s ease-in-out; }
-    .btn-send.fly .plane::after{
-      content:""; position:absolute; left:-8px; top:50%; width:32px; height:8px; border-radius:8px;
-      background:linear-gradient(90deg, var(--primary2), var(--primary)); filter: blur(4px); opacity:0;
-      transform: translate(-120%, -50%) scaleX(.6); animation: trail .8s ease-out;
-    }
+    .btn-send.fly .plane::after{ content:""; position:absolute; left:-8px; top:50%; width:32px; height:8px; border-radius:8px; background:linear-gradient(90deg, var(--primary2), var(--primary)); filter: blur(4px); opacity:0; transform: translate(-120%, -50%) scaleX(.6); animation: trail .8s ease-out; }
     @keyframes planeFly{ 0%{ transform: translate(0,0) rotate(0) } 60%{ transform: translate(26px,-8px) rotate(15deg) } 100%{ transform: translate(0,0) rotate(0) } }
     @keyframes trail{ 0%{ opacity:0; transform: translate(-120%,-50%) scaleX(.6) } 30%{ opacity:.75 } 100%{ opacity:0; transform: translate(10px,-50%) scaleX(1) } }
 
@@ -175,35 +154,16 @@
 
     .muted-box{ text-align:center; color:var(--muted); padding:22px 12px; }
 
-    /* KPI tiles + animated border */
+    /* KPI + animated border */
     .age-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:6px; }
-    .kpi{
-      position:relative; overflow:hidden;
-      background:linear-gradient(180deg,#ffffff, #f6f9ff); border:1px solid rgba(2,6,23,.06);
-      border-radius:14px; padding:14px; text-align:center; box-shadow:0 6px 16px rgba(16,24,40,.05);
-    }
-    .kpi::before{
-      content:""; position:absolute; inset:-2px; padding:2px; border-radius:inherit;
-      background: conic-gradient(from 0deg, rgba(59,130,246,.85), rgba(6,182,212,.85), rgba(59,130,246,.85));
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
-      animation: spin 6s linear infinite; opacity:.35; pointer-events:none;
-    }
+    .kpi{ position:relative; overflow:hidden; background:linear-gradient(180deg,#ffffff, #f6f9ff); border:1px solid rgba(2,6,23,.06); border-radius:14px; padding:14px; text-align:center; box-shadow:0 6px 16px rgba(16,24,40,.05); }
+    .kpi::before{ content:""; position:absolute; inset:-2px; padding:2px; border-radius:inherit; background: conic-gradient(from 0deg, rgba(59,130,246,.85), rgba(6,182,212,.85), rgba(59,130,246,.85)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; animation: spin 6s linear infinite; opacity:.35; pointer-events:none; }
     .kpi .num{ font-size:28px; font-weight:800; background:linear-gradient(90deg,var(--primary),var(--primary2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
     .kpi .lbl{ font-size:12px; color:var(--muted); margin-top:4px; }
 
     .row{ display:flex; align-items:center; gap:12px; }
-    .icon-badge{
-      width:42px; height:42px; border-radius:12px; display:grid; place-items:center; color:#fff;
-      background:linear-gradient(180deg, var(--primary), var(--primary2));
-      box-shadow:0 10px 20px rgba(59,130,246,.25);
-      position:relative; overflow:hidden; animation: badgePop .5s cubic-bezier(.2,.8,.2,1);
-    }
-    .icon-badge::after{
-      content:""; position:absolute; inset:-40% -70% auto auto; height:200%; width:40%;
-      background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.35) 50%, transparent 100%);
-      transform: rotate(25deg) translateX(-180%); animation: badgeSheen 4.5s linear infinite;
-    }
+    .icon-badge{ width:42px; height:42px; border-radius:12px; display:grid; place-items:center; color:#fff; background:linear-gradient(180deg, var(--primary), var(--primary2)); box-shadow:0 10px 20px rgba(59,130,246,.25); position:relative; overflow:hidden; animation: badgePop .5s cubic-bezier(.2,.8,.2,1); }
+    .icon-badge::after{ content:""; position:absolute; inset:-40% -70% auto auto; height:200%; width:40%; background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.35) 50%, transparent 100%); transform: rotate(25deg) translateX(-180%); animation: badgeSheen 4.5s linear infinite; }
     @keyframes badgeSheen{ to{ transform: rotate(25deg) translateX(220%); } }
     @keyframes badgePop{ 0%{ transform: scale(.6); opacity:0 } 100%{ transform: scale(1); opacity:1 } }
 
@@ -224,45 +184,24 @@
     .ringwrap{ position:relative; width:80px; height:80px; }
     .ringwrap svg{ transform: rotate(-90deg); }
     .ringwrap .txt{ position:absolute; inset:0; display:grid; place-items:center; font-weight:800; font-size:18px; color:var(--primary); }
-    .ringwrap .dot{
-      position:absolute; left:50%; top:50%;
-      width:12px; height:12px; border-radius:50%;
-      background:linear-gradient(180deg,var(--primary),var(--primary2));
-      border:2px solid #fff; transform-origin: center; transform: rotate(0deg) translateY(-34px);
-      box-shadow:0 6px 14px rgba(59,130,246,.35);
-      transition: transform 1.2s cubic-bezier(.2,.7,.2,1);
-    }
+    .ringwrap .dot{ position:absolute; left:50%; top:50%; width:12px; height:12px; border-radius:50%; background:linear-gradient(180deg,var(--primary),var(--primary2)); border:2px solid #fff; transform-origin:center; transform: rotate(0deg) translateY(-34px); box-shadow:0 6px 14px rgba(59,130,246,.35); transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
 
-    /* Footer */
     .footer-actions{ display:flex; gap:10px; margin-top:6px; justify-content:flex-end; }
     #credit{ display:none; text-align:center; margin-top:12px; opacity:0; transform: translateY(6px) scale(.98); transition:.45s; }
     #credit.show{ opacity:1; transform: translateY(0) scale(1); }
-    #credit a.credit-chip{
-      display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
-      background:#fff; border:1px solid rgba(59,130,246,.35); box-shadow:0 8px 18px rgba(59,130,246,.12);
-      color:var(--text); text-decoration:none; font-weight:800; position:relative; overflow:hidden; transition:.2s;
-    }
+    #credit a.credit-chip{ display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px; background:#fff; border:1px solid rgba(59,130,246,.35); box-shadow:0 8px 18px rgba(59,130,246,.12); color:var(--text); text-decoration:none; font-weight:800; position:relative; overflow:hidden; transition:.2s; }
     #credit a.credit-chip:hover{ transform: translateY(-1px); box-shadow:0 10px 22px rgba(59,130,246,.18); }
-    #credit a.credit-chip::after{
-      content:""; position:absolute; inset:0; background:linear-gradient(90deg, transparent, rgba(59,130,246,.08), transparent);
-      transform: translateX(-100%); transition: transform .6s ease;
-    }
+    #credit a.credit-chip::after{ content:""; position:absolute; inset:0; background:linear-gradient(90deg, transparent, rgba(59,130,246,.08), transparent); transform: translateX(-100%); transition: transform .6s ease; }
     #credit a.credit-chip:hover::after{ transform: translateX(100%); }
-    #credit .avatar{
-      width:26px; height:26px; border-radius:8px; display:grid; place-items:center; color:#fff;
-      background:linear-gradient(180deg, var(--primary), var(--primary2));
-      font-weight:900; font-size:14px; letter-spacing:.5px;
-    }
+    #credit .avatar{ width:26px; height:26px; border-radius:8px; display:grid; place-items:center; color:#fff; background:linear-gradient(180deg, var(--primary), var(--primary2)); font-weight:900; font-size:14px; letter-spacing:.5px; }
     #credit .tg{ color:var(--primary); filter: drop-shadow(0 2px 8px rgba(59,130,246,.25)); }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="shell">
-      <div class="blob"></div><div class="blob b2"></div>
-
-      <!-- Sticky title so it's always visible -->
       <div class="appbar"><i class="fa-regular fa-calendar"></i> Age Calculator</div>
+      <div class="blob"></div><div class="blob b2"></div>
 
       <div class="hero">
         <div class="orb"><div class="ring"></div><i class="fa-regular fa-calendar"></i></div>
@@ -281,7 +220,7 @@
         </div>
       </div>
 
-      <!-- FIRST PAGE placeholder (visible on load) -->
+      <!-- FIRST PAGE placeholder -->
       <div id="results">
         <div class="card show" id="emptyCard">
           <div class="muted-box">
@@ -292,14 +231,12 @@
       </div>
 
       <div class="footer-actions">
-        <!-- Animated send button (only inside Telegram) -->
         <button id="sendBtn" class="btn-send" style="display:none">
           <span class="plane"><i class="fa-brands fa-telegram"></i></span>
           <span class="label">Send to Telegram</span>
         </button>
       </div>
 
-      <!-- Credit chip (appears after results) -->
       <div class="credit" id="credit">
         <a href="https://t.me/NOBIN_39" id="nobinLink" class="credit-chip" rel="noopener">
           <span class="avatar">N</span>
@@ -310,9 +247,7 @@
     </div>
   </div>
 
-  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
@@ -325,18 +260,20 @@
     const credit = $('#credit');
     const nobinLink = $('#nobinLink');
 
-    // Telegram WebApp: force light theme + keep APIs
+    // Telegram WebApp: force light and make native header readable
     const tg = window.Telegram && Telegram.WebApp ? Telegram.WebApp : null;
     if (tg){
       try{
         tg.ready(); tg.expand();
-        document.body.classList.remove('tg-dark'); // always light
-        tg.setBackgroundColor?.('#ffffff'); // white WebApp bg
-        tg.setHeaderColor?.('bg_color');
+        tg.setBackgroundColor?.('#FFFFFF');
+        // Make native title ("Age Calculator") readable:
+        try { tg.setHeaderColor?.('#EAF2FF'); } catch(_) { tg.setHeaderColor?.('secondary_bg_color'); }
+        // Style native MainButton (used as fallback sender)
+        tg.MainButton.color = '#3b82f6';
+        tg.MainButton.textColor = '#ffffff';
       }catch(e){}
     }
 
-    // Credit link → Telegram profile
     nobinLink.addEventListener('click', e=>{
       e.preventDefault();
       const url = 'https://t.me/NOBIN_39';
@@ -344,7 +281,6 @@
       catch(_){ window.open(url,'_blank'); }
     });
 
-    // ripple for primary buttons
     document.addEventListener('click', e=>{
       const btn = e.target.closest('.btn');
       if (!btn) return;
@@ -361,7 +297,6 @@
     resetBtn.addEventListener('click', resetAll);
     dobInput.addEventListener('keydown', e=>{ if(e.key==='Enter') onCalculate(); });
 
-    // Keep one MainButton handler
     let mainBtnHandler = null;
 
     async function onCalculate(){
@@ -370,7 +305,6 @@
       const now = new Date();
       if(dob > now){ toast('Birth date cannot be in the future.'); pulseCalc(); return; }
 
-      // Button feedback
       pulseCalc(); shineCalc();
       const prevHTML = calcBtn.innerHTML;
       calcBtn.disabled = true;
@@ -387,7 +321,6 @@
       const beats = Math.floor(minutes * 80);
       const {daysInYear, daysSinceLast, percentToNext} = birthdayProgress(dob, now);
 
-      // Results UI
       results.innerHTML = `
         <div class="card">
           <div class="row">
@@ -456,29 +389,24 @@
         </div>
       `;
 
-      // Animate and ring
       revealCards();
       document.querySelectorAll('[data-anim]').forEach(el=> animateNumber(el, +el.getAttribute('data-anim')));
       animateRing($('#ring'), $('#ringTxt'), percentToNext, $('#ringDot'));
 
-      // Show send button and hook MainButton as well
       if (tg){
+        // custom button
         sendBtn.style.display = 'inline-flex';
-        sendBtn.innerHTML = `<span class="plane"><i class="fa-brands fa-telegram"></i></span><span class="label">Send to Telegram</span>`;
         const payload = { dob: fmtDate(dob), age:dif, totalDays, daysToNext, hours, minutes, heartbeats: beats };
-
-        // Custom button
         sendBtn.onclick = () => sendToTelegram(payload);
 
-        // Telegram MainButton (native)
+        // native MainButton
         tg.MainButton.setText('Send to Telegram');
         tg.MainButton.color = '#3b82f6';
         tg.MainButton.textColor = '#ffffff';
         tg.MainButton.show();
-
         if (mainBtnHandler) tg.offEvent?.('mainButtonClicked', mainBtnHandler);
         mainBtnHandler = () => sendToTelegram(payload);
-        (tg.onEvent ? tg.onEvent : tg.onEvent)?.('mainButtonClicked', mainBtnHandler);
+        tg.onEvent?.('mainButtonClicked', mainBtnHandler);
       } else {
         sendBtn.style.display = 'none';
       }
@@ -490,15 +418,14 @@
     }
 
     function sendToTelegram(payload){
-      // Button animation
       animateSendBtn();
       try{
+        if(!tg) throw new Error('Not in Telegram');
         tg.sendData(JSON.stringify({type:'age_result', payload}));
-        // Confirmation + return to chat so user sees the message immediately
         tg.showPopup?.({title:'Sent ✅', message:'Result sent to the bot.', buttons:[{type:'close'}]});
-        setTimeout(()=> tg.close?.(), 700);
+        setTimeout(()=> tg.close?.(), 700); // return to chat to see the message
       }catch(e){
-        tg.showAlert?.('Could not send. Please open this WebApp from your bot button and try again.');
+        tg?.showAlert?.('Could not send. Please open this app from your bot button.');
       }
     }
 
@@ -602,9 +529,7 @@
       [...document.querySelectorAll('#results .card')].forEach((c,i)=>{
         setTimeout(()=>c.classList.add('show'), i*90+30);
       });
-      // Show credit after results
-      credit.style.display = 'block';
-      requestAnimationFrame(()=> credit.classList.add('show'));
+      credit.style.display = 'block'; requestAnimationFrame(()=> credit.classList.add('show'));
     }
 
     function pulseCalc(){ calcBtn.classList.add('pulse'); setTimeout(()=>calcBtn.classList.remove('pulse'), 650); }

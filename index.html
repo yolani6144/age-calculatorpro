@@ -39,12 +39,25 @@
     .wrap{ max-width:560px; margin:40px auto; padding:0 18px; }
 
     .shell{
-      border-radius:28px; padding:28px 20px 22px; box-shadow:var(--shadow);
+      border-radius:28px; padding:18px 16px 22px; box-shadow:var(--shadow);
       background:linear-gradient(180deg,#ffffffaa, #ffffff30);
       border:1px solid rgba(59,130,246,.18);
       backdrop-filter: blur(6px);
       position:relative; overflow:hidden;
     }
+
+    /* Sticky app title (always visible) */
+    .appbar{
+      position:sticky; top:6px; z-index:5;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      height:38px; margin-bottom:8px;
+      background:linear-gradient(180deg,#ffffffcc,#ffffff99);
+      border:1px solid rgba(2,6,23,.06);
+      box-shadow:0 6px 16px rgba(16,24,40,.06);
+      border-radius:12px;
+      font-weight:900; color:var(--text);
+    }
+    .appbar i{ color:var(--primary); }
 
     .blob{
       position:absolute; width:420px; height:420px; filter: blur(58px); opacity:.35; z-index:0;
@@ -59,7 +72,7 @@
 
     .hero{ position:relative; z-index:1; text-align:center; }
     .orb{
-      width:100px; height:100px; margin:0 auto 10px; border-radius:50%;
+      width:100px; height:100px; margin:8px auto 10px; border-radius:50%;
       display:grid; place-items:center; color:#fff; position:relative;
       background:conic-gradient(from 200deg, var(--primary), var(--primary2));
       box-shadow: 0 18px 40px rgba(59,130,246,.35);
@@ -194,10 +207,7 @@
     @keyframes badgeSheen{ to{ transform: rotate(25deg) translateX(220%); } }
     @keyframes badgePop{ 0%{ transform: scale(.6); opacity:0 } 100%{ transform: scale(1); opacity:1 } }
 
-    .icon-orange{
-      background:linear-gradient(180deg,#fbbf24,#f59e0b);
-      color:#111827; box-shadow:0 10px 20px rgba(245,158,11,.25);
-    }
+    .icon-orange{ background:linear-gradient(180deg,#fbbf24,#f59e0b); color:#111827; box-shadow:0 10px 20px rgba(245,158,11,.25); }
     .icon-orange i{ animation: twinkle 2.4s ease-in-out infinite; }
     @keyframes twinkle{ 0%,100%{ transform: rotate(0) scale(1) } 50%{ transform: rotate(-8deg) scale(1.08) } }
 
@@ -225,7 +235,6 @@
 
     /* Footer */
     .footer-actions{ display:flex; gap:10px; margin-top:6px; justify-content:flex-end; }
-    /* credit initially hidden; will show after results */
     #credit{ display:none; text-align:center; margin-top:12px; opacity:0; transform: translateY(6px) scale(.98); transition:.45s; }
     #credit.show{ opacity:1; transform: translateY(0) scale(1); }
     #credit a.credit-chip{
@@ -251,6 +260,9 @@
   <div class="wrap">
     <div class="shell">
       <div class="blob"></div><div class="blob b2"></div>
+
+      <!-- Sticky title so it's always visible -->
+      <div class="appbar"><i class="fa-regular fa-calendar"></i> Age Calculator</div>
 
       <div class="hero">
         <div class="orb"><div class="ring"></div><i class="fa-regular fa-calendar"></i></div>
@@ -313,12 +325,12 @@
     const credit = $('#credit');
     const nobinLink = $('#nobinLink');
 
-    // Telegram WebApp: force light theme
+    // Telegram WebApp: force light theme + keep APIs
     const tg = window.Telegram && Telegram.WebApp ? Telegram.WebApp : null;
     if (tg){
       try{
         tg.ready(); tg.expand();
-        document.body.classList.remove('tg-dark');
+        document.body.classList.remove('tg-dark'); // always light
         tg.setBackgroundColor?.('#ffffff'); // white WebApp bg
         tg.setHeaderColor?.('bg_color');
       }catch(e){}
@@ -348,6 +360,9 @@
     calcBtn.addEventListener('click', onCalculate);
     resetBtn.addEventListener('click', resetAll);
     dobInput.addEventListener('keydown', e=>{ if(e.key==='Enter') onCalculate(); });
+
+    // Keep one MainButton handler
+    let mainBtnHandler = null;
 
     async function onCalculate(){
       const dob = parseDOB(dobInput.value);
@@ -441,33 +456,50 @@
         </div>
       `;
 
+      // Animate and ring
       revealCards();
       document.querySelectorAll('[data-anim]').forEach(el=> animateNumber(el, +el.getAttribute('data-anim')));
       animateRing($('#ring'), $('#ringTxt'), percentToNext, $('#ringDot'));
 
+      // Show send button and hook MainButton as well
       if (tg){
         sendBtn.style.display = 'inline-flex';
         sendBtn.innerHTML = `<span class="plane"><i class="fa-brands fa-telegram"></i></span><span class="label">Send to Telegram</span>`;
-        sendBtn.onclick = () => {
-          animateSendBtn();
-          const payload = { dob: fmtDate(dob), age:dif, totalDays, daysToNext, hours, minutes, heartbeats: beats };
-          try{
-            tg.sendData(JSON.stringify({type:'age_result', payload}));
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-          }catch(e){ toast('Could not send to Telegram.'); }
-        };
+        const payload = { dob: fmtDate(dob), age:dif, totalDays, daysToNext, hours, minutes, heartbeats: beats };
+
+        // Custom button
+        sendBtn.onclick = () => sendToTelegram(payload);
+
+        // Telegram MainButton (native)
+        tg.MainButton.setText('Send to Telegram');
+        tg.MainButton.color = '#3b82f6';
+        tg.MainButton.textColor = '#ffffff';
+        tg.MainButton.show();
+
+        if (mainBtnHandler) tg.offEvent?.('mainButtonClicked', mainBtnHandler);
+        mainBtnHandler = () => sendToTelegram(payload);
+        (tg.onEvent ? tg.onEvent : tg.onEvent)?.('mainButtonClicked', mainBtnHandler);
       } else {
         sendBtn.style.display = 'none';
       }
-
-      // Show credit chip after results
-      credit.style.display = 'block';
-      requestAnimationFrame(()=> credit.classList.add('show'));
 
       try{ confetti({ particleCount: 110, spread: 70, origin: { y: 0.15 } }); }catch(e){}
 
       calcBtn.innerHTML = prevHTML;
       calcBtn.disabled = false;
+    }
+
+    function sendToTelegram(payload){
+      // Button animation
+      animateSendBtn();
+      try{
+        tg.sendData(JSON.stringify({type:'age_result', payload}));
+        // Confirmation + return to chat so user sees the message immediately
+        tg.showPopup?.({title:'Sent ✅', message:'Result sent to the bot.', buttons:[{type:'close'}]});
+        setTimeout(()=> tg.close?.(), 700);
+      }catch(e){
+        tg.showAlert?.('Could not send. Please open this WebApp from your bot button and try again.');
+      }
     }
 
     function animateSendBtn(){
@@ -490,7 +522,10 @@
             <div style="margin-top:8px">Pick a birth date and enjoy results.</div>
           </div>
         </div>`;
-      if (tg) sendBtn.style.display='none';
+      if (tg){
+        sendBtn.style.display='none';
+        tg.MainButton?.hide();
+      }
       credit.classList.remove('show');
       credit.style.display='none';
     }
@@ -567,6 +602,9 @@
       [...document.querySelectorAll('#results .card')].forEach((c,i)=>{
         setTimeout(()=>c.classList.add('show'), i*90+30);
       });
+      // Show credit after results
+      credit.style.display = 'block';
+      requestAnimationFrame(()=> credit.classList.add('show'));
     }
 
     function pulseCalc(){ calcBtn.classList.add('pulse'); setTimeout(()=>calcBtn.classList.remove('pulse'), 650); }
